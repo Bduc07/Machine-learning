@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Login &amp; Signup — Animated</title>
+<style>
+  :root{
+    --bg-1:#6d5efc;
+    --bg-2:#8b5cf6;
+    --accent:#6d5efc;
+    --accent-dark:#5a4bd8;
+    --ink:#1f1b3a;
+    --muted:#6b6485;
+    --panel:#ffffff;
+    --danger:#ef4444;
+    --radius:18px;
+  }
+
+  *{ box-sizing:border-box; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Segoe UI', Roboto, -apple-system, BlinkMacSystemFont, sans-serif;
+    background:linear-gradient(135deg,#0f0c29,#302b63,#24243e);
+    background-size:200% 200%;
+    animation:gradientShift 12s ease infinite;
+    padding:24px;
+    overflow:hidden;
+    position:relative;
+  }
+
+  @keyframes gradientShift{
+    0%{background-position:0% 50%;}
+    50%{background-position:100% 50%;}
+    100%{background-position:0% 50%;}
+  }
+
+  /* floating decorative blobs */
+  .blob{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(60px);
+    opacity:0.45;
+    pointer-events:none;
+    animation:float 10s ease-in-out infinite;
+  }
+  .blob.one{ width:320px; height:320px; background:#8b5cf6; top:-80px; left:-80px; animation-delay:0s; }
+  .blob.two{ width:260px; height:260px; background:#22d3ee; bottom:-60px; right:-60px; animation-delay:2s; }
+  .blob.three{ width:200px; height:200px; background:#f472b6; bottom:20%; left:8%; animation-delay:4s; }
+
+  @keyframes float{
+    0%,100%{ transform:translateY(0) translateX(0) scale(1); }
+    50%{ transform:translateY(-30px) translateX(20px) scale(1.08); }
+  }
+
+  .container{
+    position:relative;
+    width:100%;
+    max-width:920px;
+    min-height:560px;
+    background:var(--panel);
+    border-radius:24px;
+    box-shadow:0 30px 60px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.06);
+    overflow:hidden;
+    display:flex;
+  }
+
+  /* ---- Forms ---- */
+  .form-panel{
+    position:absolute;
+    top:0;
+    height:100%;
+    width:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:60px 50px;
+    transition:transform 0.7s cubic-bezier(.65,0,.35,1), opacity 0.6s ease;
+  }
+
+  .form-panel form{
+    width:100%;
+    max-width:320px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+  }
+
+  .sign-in{ left:0; z-index:2; }
+  .sign-up{ left:0; z-index:1; opacity:0; }
+
+  h1{
+    font-size:28px;
+    color:var(--ink);
+    margin:0 0 6px;
+    font-weight:700;
+  }
+  .subtitle{
+    color:var(--muted);
+    font-size:14px;
+    margin:0 0 18px;
+  }
+
+  .field{
+    position:relative;
+  }
+  .field input{
+    width:100%;
+    padding:14px 16px;
+    border-radius:12px;
+    border:1.5px solid #e6e3f5;
+    background:#f7f6fd;
+    font-size:14px;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .25s ease, box-shadow .25s ease, background .25s ease;
+  }
+  .field input::placeholder{ color:#a7a2c0; }
+  .field input:focus{
+    border-color:var(--accent);
+    background:#fff;
+    box-shadow:0 0 0 4px rgba(109,94,252,0.12);
+  }
+
+  .row-between{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:12.5px;
+    color:var(--muted);
+    margin-top:-2px;
+  }
+  .row-between a{
+    color:var(--accent);
+    text-decoration:none;
+    font-weight:600;
+  }
+  .row-between a:hover{ text-decoration:underline; }
+
+  button.submit{
+    margin-top:8px;
+    padding:14px;
+    border:none;
+    border-radius:12px;
+    background:linear-gradient(135deg,var(--bg-1),var(--bg-2));
+    color:#fff;
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:.3px;
+    cursor:pointer;
+    position:relative;
+    overflow:hidden;
+    transition:transform .15s ease, box-shadow .25s ease;
+    box-shadow:0 10px 20px rgba(109,94,252,0.35);
+  }
+  button.submit:hover{ transform:translateY(-2px); box-shadow:0 14px 26px rgba(109,94,252,0.45); }
+  button.submit:active{ transform:translateY(0); }
+
+  button.submit .ripple{
+    position:absolute;
+    border-radius:50%;
+    background:rgba(255,255,255,0.5);
+    transform:scale(0);
+    animation:rippleAnim .6s ease-out forwards;
+    pointer-events:none;
+  }
+  @keyframes rippleAnim{
+    to{ transform:scale(3); opacity:0; }
+  }
+
+  .divider{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    color:#b5b0cc;
+    font-size:12px;
+    margin:10px 0 2px;
+  }
+  .divider::before, .divider::after{
+    content:'';
+    flex:1;
+    height:1px;
+    background:#e8e5f5;
+  }
+
+  .socials{
+    display:flex;
+    gap:10px;
+  }
+  .socials button{
+    flex:1;
+    padding:10px;
+    border-radius:10px;
+    border:1.5px solid #e6e3f5;
+    background:#fff;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:600;
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    transition:transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+  }
+  .socials button:hover{
+    transform:translateY(-2px);
+    border-color:var(--accent);
+    box-shadow:0 6px 14px rgba(109,94,252,0.15);
+  }
+
+  /* ---- Overlay (animated slider) ---- */
+  .overlay-container{
+    position:absolute;
+    top:0;
+    left:50%;
+    width:50%;
+    height:100%;
+    overflow:hidden;
+    transition:transform 0.7s cubic-bezier(.65,0,.35,1);
+    z-index:5;
+  }
+  .overlay{
+    background:linear-gradient(135deg,var(--bg-1) 0%, var(--bg-2) 100%);
+    background-size:200% 200%;
+    animation:gradientShift 8s ease infinite;
+    position:relative;
+    left:-100%;
+    height:100%;
+    width:200%;
+    color:#fff;
+    display:flex;
+    transition:transform 0.7s cubic-bezier(.65,0,.35,1);
+  }
+  .overlay-panel{
+    position:relative;
+    width:50%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:0 44px;
+  }
+  .overlay-panel h2{
+    font-size:26px;
+    margin:0 0 12px;
+    font-weight:700;
+  }
+  .overlay-panel p{
+    font-size:14px;
+    line-height:1.6;
+    color:rgba(255,255,255,0.85);
+    margin:0 0 26px;
+  }
+  .ghost-btn{
+    padding:12px 34px;
+    border:2px solid #fff;
+    border-radius:30px;
+    background:transparent;
+    color:#fff;
+    font-weight:700;
+    font-size:13px;
+    letter-spacing:.6px;
+    text-transform:uppercase;
+    cursor:pointer;
+    transition:background .25s ease, color .25s ease, transform .2s ease;
+  }
+  .ghost-btn:hover{
+    background:#fff;
+    color:var(--accent-dark);
+    transform:translateY(-2px);
+  }
+
+  .icon-badge{
+    width:64px;
+    height:64px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.15);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:18px;
+    animation:pulse 2.4s ease-in-out infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ box-shadow:0 0 0 0 rgba(255,255,255,0.35); }
+    50%{ box-shadow:0 0 0 14px rgba(255,255,255,0); }
+  }
+  .icon-badge svg{ width:28px; height:28px; }
+
+  /* ---- State: right-panel-active (show signup) ---- */
+  .container.right-active .sign-in{
+    transform:translateX(-100%);
+    opacity:0;
+  }
+  .container.right-active .sign-up{
+    transform:translateX(100%);
+    opacity:1;
+    z-index:5;
+    animation:showPanel .7s;
+  }
+  .container.right-active .overlay-container{
+    transform:translateX(-100%);
+  }
+  .container.right-active .overlay{
+    transform:translateX(50%);
+  }
+
+  @keyframes showPanel{
+    0%,49.99%{ opacity:0; z-index:1; }
+    50%,100%{ opacity:1; z-index:5; }
+  }
+
+  /* checkbox */
+  .check-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:12.5px;
+    color:var(--muted);
+  }
+  .check-row input{ accent-color:var(--accent); width:14px; height:14px; }
+
+  .error-msg{
+    font-size:12px;
+    color:var(--danger);
+    min-height:14px;
+    margin-top:-6px;
+  }
+
+  @media (max-width:760px){
+    .container{ min-height:auto; }
+    .overlay-container{ display:none; }
+    .form-panel{ position:relative; width:100%; padding:44px 28px; }
+    .sign-up{ display:none; }
+    .container.right-active .sign-in{ display:none; }
+    .container.right-active .sign-up{ display:flex; transform:none; opacity:1; }
+    .mobile-toggle{
+      text-align:center;
+      font-size:13px;
+      color:var(--muted);
+      margin-top:8px;
+    }
+    .mobile-toggle a{ color:var(--accent); font-weight:700; text-decoration:none; cursor:pointer; }
+  }
+  @media (min-width:761px){ .mobile-toggle{ display:none; } }
+</style>
+</head>
+<body>
+
+  <div class="blob one"></div>
+  <div class="blob two"></div>
+  <div class="blob three"></div>
+
+  <div class="container" id="container">
+
+    <!-- SIGN IN -->
+    <div class="form-panel sign-in">
+      <form id="signInForm" novalidate>
+        <h1>Welcome back</h1>
+        <p class="subtitle">Log in to keep things moving.</p>
+
+        <div class="field">
+          <input type="email" placeholder="Email address" required />
+        </div>
+        <div class="field">
+          <input type="password" placeholder="Password" required minlength="6" />
+        </div>
+        <div class="error-msg" id="signInError"></div>
+
+        <div class="row-between">
+          <label class="check-row"><input type="checkbox" /> Remember me</label>
+          <a href="#">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="submit">Log In</button>
+
+        <div class="divider">or continue with</div>
+        <div class="socials">
+          <button type="button">🔵 Google</button>
+          <button type="button">⚫ GitHub</button>
+        </div>
+
+        <div class="mobile-toggle">Don't have an account? <a data-toggle="up">Sign up</a></div>
+      </form>
+    </div>
+
+    <!-- SIGN UP -->
+    <div class="form-panel sign-up">
+      <form id="signUpForm" novalidate>
+        <h1>Create account</h1>
+        <p class="subtitle">Start your journey with us today.</p>
+
+        <div class="field">
+          <input type="text" placeholder="Full name" required />
+        </div>
+        <div class="field">
+          <input type="email" placeholder="Email address" required />
+        </div>
+        <div class="field">
+          <input type="password" placeholder="Password" required minlength="6" />
+        </div>
+        <div class="error-msg" id="signUpError"></div>
+
+        <label class="check-row"><input type="checkbox" required /> I agree to the Terms &amp; Privacy Policy</label>
+
+        <button type="submit" class="submit">Create Account</button>
+
+        <div class="divider">or sign up with</div>
+        <div class="socials">
+          <button type="button">🔵 Google</button>
+          <button type="button">⚫ GitHub</button>
+        </div>
+
+        <div class="mobile-toggle">Already have an account? <a data-toggle="in">Log in</a></div>
+      </form>
+    </div>
+
+    <!-- OVERLAY -->
+    <div class="overlay-container" id="overlayContainer">
+      <div class="overlay">
+
+        <div class="overlay-panel overlay-left">
+          <div class="icon-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+          </div>
+          <h2>Already have an account?</h2>
+          <p>Log in to pick up right where you left off.</p>
+          <button class="ghost-btn" id="btnSignIn">Log In</button>
+        </div>
+
+        <div class="overlay-panel overlay-right">
+          <div class="icon-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+          <h2>New here?</h2>
+          <p>Create an account and join in just a few seconds.</p>
+          <button class="ghost-btn" id="btnSignUp">Sign Up</button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+<script>
+  const container = document.getElementById('container');
+  document.getElementById('btnSignUp').addEventListener('click', () => container.classList.add('right-active'));
+  document.getElementById('btnSignIn').addEventListener('click', () => container.classList.remove('right-active'));
+
+  document.querySelectorAll('[data-toggle]').forEach(el=>{
+    el.addEventListener('click', () => {
+      if(el.dataset.toggle === 'up') container.classList.add('right-active');
+      else container.classList.remove('right-active');
+    });
+  });
+
+  // simple ripple effect on submit buttons
+  document.querySelectorAll('button.submit').forEach(btn=>{
+    btn.addEventListener('click', function(e){
+      const rect = this.getBoundingClientRect();
+      const ripple = document.createElement('span');
+      const size = Math.max(rect.width, rect.height);
+      ripple.className = 'ripple';
+      ripple.style.width = ripple.style.height = size + 'px';
+      ripple.style.left = (e.clientX - rect.left - size/2) + 'px';
+      ripple.style.top = (e.clientY - rect.top - size/2) + 'px';
+      this.appendChild(ripple);
+      setTimeout(()=> ripple.remove(), 650);
+    });
+  });
+
+  // lightweight demo validation (no backend — front-end only)
+  document.getElementById('signInForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const err = document.getElementById('signInError');
+    if(!this.checkValidity()){ err.textContent = 'Please enter a valid email and a password of at least 6 characters.'; return; }
+    err.textContent = '';
+    err.style.color = '#16a34a';
+    err.textContent = 'Looks good — this is a front-end demo, so no account was actually created.';
+  });
+
+  document.getElementById('signUpForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    const err = document.getElementById('signUpError');
+    if(!this.checkValidity()){ err.textContent = 'Please fill all fields correctly and accept the terms.'; return; }
+    err.textContent = '';
+    err.style.color = '#16a34a';
+    err.textContent = 'Looks good — this is a front-end demo, so no account was actually created.';
+  });
+</script>
+
+</body>
+</html>
